@@ -1,6 +1,8 @@
 package com.example.opombo.model.entity;
 
 import com.example.opombo.model.enums.Motivo;
+import com.example.opombo.model.enums.Papel;
+import com.example.opombo.model.enums.Situacao;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -28,6 +30,9 @@ public class Denuncia {
 
     @NotNull
     private Motivo motivo;
+
+    @Enumerated(EnumType.STRING)
+    private Situacao situacao = Situacao.PENDENTE; // Se o valor não for informado, o padrão é PENDENTE
 
     @CreationTimestamp
     private LocalDateTime criadoEm;

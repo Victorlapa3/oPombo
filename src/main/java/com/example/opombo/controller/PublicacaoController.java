@@ -60,11 +60,4 @@ public class PublicacaoController {
         Publicacao publicacao = publicacaoService.buscarPorId(id);
         return ResponseEntity.ok(publicacao);
     }
-
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<Void> deletarPublicacao(@PathVariable String id) {
-    //     // TODO: adicionar validação de permissão
-    //     publicacaoService.deletar(id);
-    //     return ResponseEntity.ok().build();
-    // }
 }
