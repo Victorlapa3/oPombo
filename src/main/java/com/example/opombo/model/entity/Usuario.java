@@ -23,11 +23,15 @@ public class Usuario {
     private String id;
 
     @OneToMany(mappedBy = "usuario")
-    @JsonBackReference
+    @JsonBackReference(value = "usuario_publicacao")
     private List<Publicacao> publicacoes;
 
     @NotBlank
     private String nome;
+
+    @OneToMany(mappedBy = "usuario")
+    @JsonBackReference(value = "usuario_denuncia")
+    private List<Denuncia> denuncias;
 
     @NotBlank
     @Email(message = "O email deve ser válido.")

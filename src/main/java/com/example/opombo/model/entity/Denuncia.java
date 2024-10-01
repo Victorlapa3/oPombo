@@ -1,5 +1,6 @@
 package com.example.opombo.model.entity;
 
+import com.example.opombo.model.dto.DenunciaDTO;
 import com.example.opombo.model.enums.Motivo;
 import com.example.opombo.model.enums.Papel;
 import com.example.opombo.model.enums.Situacao;
@@ -17,7 +18,7 @@ public class Denuncia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @UuidGenerator
+    @UuidGenerator //ele já está sendo usado na linha de cima, perguntar ao prof. vilmar
     private String id;
 
     @ManyToOne
@@ -29,6 +30,7 @@ public class Denuncia {
     private Usuario usuario;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Motivo motivo;
 
     @Enumerated(EnumType.STRING)
@@ -36,4 +38,9 @@ public class Denuncia {
 
     @CreationTimestamp
     private LocalDateTime criadoEm;
+
+    public static DenunciaDTO toDTO(String publicacaoId, int totalDenuncias, int denunciasPendentes, int denunciasAnalisadas) {
+        DenunciaDTO dto = new DenunciaDTO(publicacaoId, totalDenuncias, denunciasPendentes, denunciasAnalisadas);
+        return dto;
+    }
 }

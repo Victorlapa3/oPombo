@@ -1,6 +1,7 @@
 package com.example.opombo.controller;
 
 import com.example.opombo.exception.PomboException;
+import com.example.opombo.model.dto.PublicacaoDTO;
 import com.example.opombo.model.entity.Publicacao;
 import com.example.opombo.model.entity.Usuario;
 import com.example.opombo.model.seletor.PublicacaoSeletor;
@@ -59,5 +60,10 @@ public class PublicacaoController {
     public ResponseEntity<Publicacao> buscarPublicacaoPorId(@PathVariable String id) throws PomboException {
         Publicacao publicacao = publicacaoService.buscarPorId(id);
         return ResponseEntity.ok(publicacao);
+    }
+    @GetMapping("/relatorio")
+    public List<PublicacaoDTO> gerarRelatorio() throws PomboException {
+        List <PublicacaoDTO> publicacoesDTOS = publicacaoService.buscarDTO();
+        return publicacoesDTOS;
     }
 }

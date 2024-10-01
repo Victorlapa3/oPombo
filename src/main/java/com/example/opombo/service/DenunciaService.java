@@ -1,9 +1,11 @@
 package com.example.opombo.service;
 
+import com.example.opombo.model.dto.DenunciaDTO;
 import com.example.opombo.exception.PomboException;
 import com.example.opombo.model.entity.Denuncia;
 import com.example.opombo.model.enums.Papel;
 import com.example.opombo.model.entity.Usuario;
+import com.example.opombo.model.enums.Situacao;
 import com.example.opombo.model.repository.DenunciaRepository;
 import com.example.opombo.model.repository.UsuarioRepository;
 import com.example.opombo.model.seletor.DenunciaSeletor;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -63,4 +66,23 @@ public class DenunciaService {
             throw new PomboException("Usuário não autorizado.");
         }
     }
+
+    public DenunciaDTO gerarRelatorio(String usuarioId, String publicacaoId) throws PomboException {
+        // verificarAdministrador(usuarioId);
+        List<Denuncia> denuncias = this.denunciaRepository.findByPublicacaoId(publicacaoId);
+        List<Denuncia> denunciasPendentes = new ArrayList<>();
+        List<Denuncia> denunciasAnalisadas = new ArrayList<>();
+
+        for (Denuncia d : denuncias) {
+            if (d.getSituacao() == Situacao.PENDENTE) {
+                denunciasPendentes.add(d);
+            }
+            if (d.getSituacao() == Situacao.ANALISADA) {
+                denunciasAnalisadas.add(d);
+            }
+        }
+
+        return Denuncia.toDTO(publicacaoId, denuncias.size(), denunciasPendentes.size(), denunciasAnalisadas.size());
+    }
+
 }

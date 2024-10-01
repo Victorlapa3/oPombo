@@ -1,6 +1,7 @@
 package com.example.opombo.controller;
 
 import com.example.opombo.exception.PomboException;
+import com.example.opombo.model.dto.DenunciaDTO;
 import com.example.opombo.model.entity.Denuncia;
 import com.example.opombo.model.seletor.DenunciaSeletor;
 import com.example.opombo.service.DenunciaService;
@@ -25,6 +26,11 @@ public class DenunciaController {
     @PostMapping("/filtro")
     public List<Denuncia> buscarDenunciasComFiltro(@RequestBody DenunciaSeletor seletor) {
         return denunciaService.buscarComFiltro(seletor);
+    }
+
+    @GetMapping("/dto")
+    public DenunciaDTO gerarRelatorio(@RequestParam String adminId, @RequestParam String publicationId) throws PomboException {
+        return denunciaService.gerarRelatorio(adminId, publicationId);
     }
 
     @GetMapping

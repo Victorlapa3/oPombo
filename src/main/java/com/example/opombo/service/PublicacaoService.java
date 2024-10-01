@@ -1,6 +1,8 @@
 package com.example.opombo.service;
 
 import com.example.opombo.exception.PomboException;
+import com.example.opombo.model.dto.PublicacaoDTO;
+import com.example.opombo.model.entity.Denuncia;
 import com.example.opombo.model.entity.Publicacao;
 import com.example.opombo.model.enums.Papel;
 import com.example.opombo.model.entity.Usuario;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -62,14 +65,43 @@ public class PublicacaoService {
         publicacaoRepository.save(publicacao);
     }
 
+    public List<Usuario> buscarCurtidasPublicacao(String publicacaoId) throws PomboException {
+        Publicacao publicacao = publicacaoRepository.findById(publicacaoId).orElseThrow(() -> new PomboException("Publicação não encontrada."));
+
+        return publicacao.getCurtidas();
+    }
+
+    public List<Denuncia> buscarDenunciasPublicacao(String publicacaoId) throws PomboException {
+        Publicacao publicacao = publicacaoRepository.findById(publicacaoId).orElseThrow(() -> new PomboException("Publicação não encontrada."));
+
+        return publicacao.getDenuncias();
+    }
+
+    public List<PublicacaoDTO> buscarDTO() throws PomboException {
+        List<Publicacao> publicacoes = this.buscarTodas();
+        List<PublicacaoDTO> dtos = new ArrayList<>();
+
+        for(Publicacao p : publicacoes) {
+            Integer qtdCurtidas = this.buscarCurtidasPublicacao(p.getId()).size();
+            Integer qtdDenuncias = this.buscarDenunciasPublicacao(p.getId()).size();
+            PublicacaoDTO dto = Publicacao.toDTO(p, qtdCurtidas, qtdDenuncias);
+            dtos.add(dto);
+        }
+
+        return dtos;
+    }
+
     // Se a publicação já estiver bloqueada, o métoodo a desbloqueará
     public void bloquear(String usuarioId, String publicacaoId) throws PomboException {
         verificarAdministrador(usuarioId);
 
-        this.denunciaRepository.findByPublicacaoId(publicacaoId)
-                .orElseThrow(() -> new PomboException("A publicação não foi denunciada."));
-        Publicacao publicacao = publicacaoRepository.findById(publicacaoId)
-                .orElseThrow(() -> new PomboException("Publicação não encontrada."));
+        List<Denuncia> denuncias = this.denunciaRepository.findByPublicacaoId(publicacaoId);
+
+        Publicacao publicacao = publicacaoRepository.findById(publicacaoId).orElseThrow(() -> new PomboException("A publicação não foi encontrada."));
+
+        if(denuncias.isEmpty()) {
+            throw new PomboException("A publicação não foi denunciada");
+        }
 
         publicacao.setBloqueado(!publicacao.isBloqueado());
 
@@ -88,12 +120,12 @@ public class PublicacaoService {
         return publicacaoRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm"));
     }
 
-    public List<Usuario> buscarCurtidasPublicacao(String publicacaoId) throws PomboException {
-        Publicacao publicacao = publicacaoRepository.findById(publicacaoId)
-                .orElseThrow(() -> new PomboException("Publicação não encontrada."));
-
-        return publicacao.getCurtidas();
-    }
+//    public List<Usuario> buscarCurtidasPublicacao(String publicacaoId) throws PomboException {
+//        Publicacao publicacao = publicacaoRepository.findById(publicacaoId)
+//                .orElseThrow(() -> new PomboException("Publicação não encontrada."));
+//
+//        return publicacao.getCurtidas();
+//    }
 
     public boolean deletar(String id) {
         publicacaoRepository.deleteById(id);
