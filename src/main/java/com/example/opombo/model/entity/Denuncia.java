@@ -29,7 +29,7 @@ public class Denuncia {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @NotNull
+    @NotNull(message = "A denuncia deve possuir um motivo!")
     @Enumerated(EnumType.STRING)
     private Motivo motivo;
 
