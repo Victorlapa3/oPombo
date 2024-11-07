@@ -3,6 +3,7 @@ package com.example.opombo.model.repository;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.example.opombo.factories.UsuarioFactory;
 import com.example.opombo.model.entity.Usuario;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
@@ -21,11 +22,9 @@ public class UsuarioRepositoryTest {
     @Test
     @DisplayName("Nao deve ser possivel criar um usuario com nome maior que 200 caracteres.")
     public void testCreate$nomeMaiorDoQue200Caracteres() {
+        Usuario user = UsuarioFactory.createUsuario();
         String name = "a";
-        Usuario user = new Usuario();
         user.setNome(name.repeat(201));
-        user.setEmail("a@gmail.com");
-        user.setCpf("12833057989");
 
         assertThatThrownBy(() -> usuarioRepository.saveAndFlush(user)).isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("O nome deve ter no maximo 200 caracteres.");
@@ -34,10 +33,8 @@ public class UsuarioRepositoryTest {
     @Test
     @DisplayName("Não deve ser possível criar um usuario com email inválido.")
     public void testCreate$emailInvalido() {
-        Usuario user = new Usuario();
-        user.setNome("lapada");
+        Usuario user = UsuarioFactory.createUsuario();
         user.setEmail("teste");
-        user.setCpf("12833057989");
 
         assertThatThrownBy(() -> usuarioRepository.saveAndFlush(user)).isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("O email deve ser válido.");
@@ -46,9 +43,7 @@ public class UsuarioRepositoryTest {
     @Test
     @DisplayName("Não deve ser possível criar um usuario com cpf inválido.")
     public void testCreate$cpfInvalido() {
-        Usuario user = new Usuario();
-        user.setNome("teste");
-        user.setEmail("a@gmail.com");
+        Usuario user = UsuarioFactory.createUsuario();
         user.setCpf("0123456");
 
         assertThatThrownBy(() -> usuarioRepository.saveAndFlush(user)).isInstanceOf(ConstraintViolationException.class)
