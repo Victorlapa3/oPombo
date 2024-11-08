@@ -1,6 +1,9 @@
 package com.example.opombo.model.repository;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.example.opombo.factories.PublicacaoFactory;
+import com.example.opombo.factories.UsuarioFactory;
 import jakarta.validation.ConstraintViolationException;
 import com.example.opombo.model.entity.Denuncia;
 import com.example.opombo.model.entity.Publicacao;
@@ -27,16 +30,8 @@ public class DenunciaRepositoryTest {
     @Test
     @DisplayName("Não deve ser possível criar uma denúncia sem nenhum motivo")
     public void testCreate$denunciaSemMotivo() {
-        Usuario user = new Usuario();
-        user.setNome("lapada");
-        user.setEmail("teste@teste.com");
-        user.setCpf("12833057989");
-
-        Publicacao publicacao = new Publicacao();
-        publicacao.setUsuario(user);
-        publicacao.setConteudo("a");
-        publicacao.setCurtidas(new ArrayList<>());
-        publicacao.setDenuncias(new ArrayList<>());
+        Usuario user = UsuarioFactory.createUsuario();
+        Publicacao publicacao = PublicacaoFactory.createPublicacao(user);
 
         usuarioRepository.saveAndFlush(user);
         publicacaoRepository.saveAndFlush(publicacao);
