@@ -4,6 +4,7 @@ import com.example.opombo.exception.PomboException;
 import com.example.opombo.model.dto.PublicacaoDTO;
 import com.example.opombo.model.entity.Publicacao;
 import com.example.opombo.model.entity.Usuario;
+import com.example.opombo.model.repository.PublicacaoRepository;
 import com.example.opombo.model.seletor.PublicacaoSeletor;
 import com.example.opombo.service.PublicacaoService;
 import jakarta.validation.Valid;
@@ -19,6 +20,8 @@ public class PublicacaoController {
 
     @Autowired
     private PublicacaoService publicacaoService;
+    @Autowired
+    private PublicacaoRepository publicacaoRepository;
 
     @PostMapping
     public ResponseEntity<Publicacao> criarPublicacao(@Valid @RequestBody Publicacao publicacao) throws PomboException {
@@ -46,7 +49,7 @@ public class PublicacaoController {
 
     @GetMapping
     public ResponseEntity<List<Publicacao>> listarTodasPublicacoes() {
-        List<Publicacao> publicacoes = publicacaoService.buscarTodas();
+        List<Publicacao> publicacoes = publicacaoRepository.findAll();
         return ResponseEntity.ok(publicacoes);
     }
 

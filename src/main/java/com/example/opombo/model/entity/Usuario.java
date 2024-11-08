@@ -10,13 +10,18 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Data
-public class Usuario {
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -37,6 +42,9 @@ public class Usuario {
     @Column(unique = true)
     private String cpf;
 
+    @NotBlank
+    private String senha;
+
     @Enumerated(EnumType.STRING)
     private Papel papel = Papel.USUARIO; // Se o valor não for informado, o padrão é USUARIO
 
@@ -50,4 +58,23 @@ public class Usuario {
 
     @CreationTimestamp
     private LocalDateTime criadoEm;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        authorities.add(new SimpleGrantedAuthority(papel.toString()));
+
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 }

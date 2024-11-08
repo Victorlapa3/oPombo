@@ -7,20 +7,29 @@ import com.example.opombo.model.seletor.UsuarioSeletor;
 import org.hibernate.validator.internal.constraintvalidators.bv.NotNullValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario nao encotnrado: " + username));
+    }
+
     public Usuario criar(Usuario usuario) throws PomboException {
         verificarSeUsuarioExiste(usuario);
         padronizarCpf(usuario);
+
         return usuarioRepository.save(usuario);
     }
 
@@ -82,4 +91,5 @@ public class UsuarioService {
             }
         }
     }
+
 }

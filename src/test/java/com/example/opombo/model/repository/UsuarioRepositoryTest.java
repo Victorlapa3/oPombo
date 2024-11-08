@@ -1,7 +1,6 @@
 package com.example.opombo.model.repository;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.opombo.factories.UsuarioFactory;
 import com.example.opombo.model.entity.Usuario;

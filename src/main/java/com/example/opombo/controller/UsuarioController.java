@@ -18,12 +18,6 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping
-    public ResponseEntity<Usuario> criarUsuario(@Valid @RequestBody Usuario usuario) throws PomboException {
-        Usuario criado = usuarioService.criar(usuario);
-        return ResponseEntity.ok(criado);
-    }
-
     @PostMapping("/filtro")
     public ResponseEntity<List<Usuario>> buscarUsuariosComFiltro(@RequestBody UsuarioSeletor seletor) {
         List<Usuario> usuarios = usuarioService.buscarComFiltro(seletor);

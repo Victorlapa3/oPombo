@@ -10,6 +10,7 @@ import com.example.opombo.model.repository.DenunciaRepository;
 import com.example.opombo.model.repository.PublicacaoRepository;
 import com.example.opombo.model.repository.UsuarioRepository;
 import com.example.opombo.model.seletor.PublicacaoSeletor;
+import com.example.opombo.utils.RSAEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PublicacaoService {
@@ -30,20 +32,26 @@ public class PublicacaoService {
     @Autowired
     private DenunciaRepository denunciaRepository;
 
-    public List<Publicacao> buscarTodas() {
-        return publicacaoRepository.findAll(Sort.by(Sort.Direction.DESC, "criadoEm"));
+    @Autowired
+    private RSAEncoder rsaEncoder;
+
+    public Publicacao criar(Publicacao publicacao) throws PomboException {
+        if(publicacao.getConteudo().length() > 300) {
+            throw new PomboException("O conteúdo da Publicacao deve conter no máximo 300 caracteres.");
+        }
+
+        publicacao.setConteudo(rsaEncoder.encode(publicacao.getConteudo()));
+
+        return publicacaoRepository.save(publicacao);
     }
 
     public Publicacao buscarPorId(String id) throws PomboException {
-        return publicacaoRepository.findById(id)
-                .orElseThrow(() -> new PomboException("Publicação não encontrada."));
-    }
+        Publicacao publicacao = publicacaoRepository.findById(id).orElseThrow(() -> new PomboException("Publicação não encontrada."));
 
-    public Publicacao criar(Publicacao publicacao) throws PomboException {
-        this.usuarioRepository.findById(publicacao.getUsuario().getId())
-                .orElseThrow(() -> new PomboException("Usuário inválido."));
+        publicacao.setConteudo(rsaEncoder.decode(publicacao.getConteudo()));
 
-        return publicacaoRepository.save(publicacao);
+
+        return publicacao;
     }
 
     // Se a publicação já estiver curtida, o métodoo a descurtirá
@@ -78,7 +86,7 @@ public class PublicacaoService {
     }
 
     public List<PublicacaoDTO> buscarDTO() throws PomboException {
-        List<Publicacao> publicacoes = this.buscarTodas();
+        List<Publicacao> publicacoes = publicacaoRepository.findAll();
         List<PublicacaoDTO> dtos = new ArrayList<>();
 
         for(Publicacao p : publicacoes) {
@@ -109,27 +117,32 @@ public class PublicacaoService {
     }
 
     public List<Publicacao> buscarComFiltro(PublicacaoSeletor seletor) {
+        List<Publicacao> publicacoes = new ArrayList<>();
+
         if (seletor.temPaginacao()) {
             int numeroPagina = seletor.getPagina();
             int tamanhoPagina = seletor.getLimite();
 
             PageRequest pagina = PageRequest.of(numeroPagina - 1, tamanhoPagina, Sort.by(Sort.Direction.DESC, "criadoEm"));
-            return publicacaoRepository.findAll(seletor, pagina).toList();
+            publicacoes = publicacaoRepository.findAll(seletor, pagina).toList();
+        } else {
+            publicacoes = publicacaoRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm"));
         }
 
-        return publicacaoRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm"));
+        publicacoes = removerPublicacoesBloqueadasEExcluidas(publicacoes);
+
+        return publicacoes;
     }
 
-//    public List<Usuario> buscarCurtidasPublicacao(String publicacaoId) throws PomboException {
-//        Publicacao publicacao = publicacaoRepository.findById(publicacaoId)
-//                .orElseThrow(() -> new PomboException("Publicação não encontrada."));
-//
-//        return publicacao.getCurtidas();
-//    }
+    public void deletar(String publicacaoId, String usuarioId) throws PomboException {
+        Publicacao publicacao = publicacaoRepository.findById(publicacaoId).orElseThrow(() -> new PomboException("A publicação não foi encontrada."));
 
-    public boolean deletar(String id) {
-        publicacaoRepository.deleteById(id);
-        return true;
+        if(!publicacao.getUsuario().getId().equals(usuarioId)) {
+            throw new PomboException("Você não pode excluir publicações de outros usuários.");
+        }
+
+        publicacao.setExcluido(true);
+        publicacaoRepository.save(publicacao);
     }
 
     public void verificarAdministrador(String usuarioId) throws PomboException {
@@ -139,5 +152,11 @@ public class PublicacaoService {
         if (usuario.getPapel() == Papel.USUARIO) {
             throw new PomboException("Usuário não autorizado.");
         }
+    }
+
+    public List<Publicacao> removerPublicacoesBloqueadasEExcluidas(List<Publicacao> publicacoes) {
+        return publicacoes.stream()
+                .filter(pub -> !pub.isBloqueado() && !pub.isExcluido())
+                .collect(Collectors.toList());
     }
 }

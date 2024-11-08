@@ -26,7 +26,7 @@ public class Publicacao {
     private Usuario usuario;
 
     @NotBlank
-    @Size(max = 300, message = "O conteúdo da Publicacao deve conter no máximo 300 caracteres.")
+    @Size(max = 350, message = "O conteúdo da Publicacao deve conter no máximo 300 caracteres.")
     private String conteudo;
 
     @ManyToMany
@@ -42,6 +42,8 @@ public class Publicacao {
     private List<Denuncia> denuncias;
 
     private boolean bloqueado = false;
+
+    private boolean excluido = false;
 
     @CreationTimestamp
     private LocalDateTime criadoEm;
