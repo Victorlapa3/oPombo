@@ -99,23 +99,6 @@ public class PublicacaoService {
         return dtos;
     }
 
-    // Se a publicação já estiver bloqueada, o métoodo a desbloqueará
-    public void bloquear(String usuarioId, String publicacaoId) throws PomboException {
-        verificarAdministrador(usuarioId);
-
-        List<Denuncia> denuncias = this.denunciaRepository.findByPublicacaoId(publicacaoId);
-
-        Publicacao publicacao = publicacaoRepository.findById(publicacaoId).orElseThrow(() -> new PomboException("A publicação não foi encontrada."));
-
-        if(denuncias.isEmpty()) {
-            throw new PomboException("A publicação não foi denunciada");
-        }
-
-        publicacao.setBloqueado(!publicacao.isBloqueado());
-
-        publicacaoRepository.save(publicacao);
-    }
-
     public List<Publicacao> buscarComFiltro(PublicacaoSeletor seletor) {
         List<Publicacao> publicacoes = new ArrayList<>();
 

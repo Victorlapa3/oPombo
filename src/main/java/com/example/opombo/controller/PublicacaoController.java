@@ -1,9 +1,11 @@
 package com.example.opombo.controller;
 
+import com.example.opombo.auth.AuthService;
 import com.example.opombo.exception.PomboException;
 import com.example.opombo.model.dto.PublicacaoDTO;
 import com.example.opombo.model.entity.Publicacao;
 import com.example.opombo.model.entity.Usuario;
+import com.example.opombo.model.enums.Papel;
 import com.example.opombo.model.repository.PublicacaoRepository;
 import com.example.opombo.model.seletor.PublicacaoSeletor;
 import com.example.opombo.service.PublicacaoService;
@@ -20,11 +22,19 @@ public class PublicacaoController {
 
     @Autowired
     private PublicacaoService publicacaoService;
+
     @Autowired
     private PublicacaoRepository publicacaoRepository;
 
+    @Autowired
+    private AuthService authService;
+
     @PostMapping
     public ResponseEntity<Publicacao> criarPublicacao(@Valid @RequestBody Publicacao publicacao) throws PomboException {
+        Usuario subject = authService.getAuthenticatedUser();
+
+        publicacao.getUsuario().setId(subject.getId());
+
         Publicacao criada = publicacaoService.criar(publicacao);
         return ResponseEntity.ok(criada);
     }
@@ -35,16 +45,16 @@ public class PublicacaoController {
         return ResponseEntity.ok(publicacoes);
     }
 
-    @PostMapping("/curtir")
-    public ResponseEntity<Void> curtir(@RequestParam String usuarioId, @RequestParam String publicacaoId) throws PomboException {
-        publicacaoService.curtir(usuarioId, publicacaoId);
-        return ResponseEntity.ok().build();
-    }
+    @PostMapping("/curtir/{publicacaoId}")
+    public ResponseEntity<Void> curtir(@PathVariable String publicacaoId) throws PomboException {
+        Usuario subject = authService.getAuthenticatedUser();
 
-    @PatchMapping("/bloquear")
-    public ResponseEntity<Void> bloquear(@RequestParam String usuarioId, @RequestParam String publicacaoId) throws PomboException {
-        publicacaoService.bloquear(usuarioId, publicacaoId);
-        return ResponseEntity.ok().build();
+        if(subject.getPapel() == Papel.USUARIO) {
+            publicacaoService.curtir(subject.getId(), publicacaoId);
+            return ResponseEntity.ok().build();
+        } else {
+            throw new PomboException("Administradores não podem curtir publicações.");
+        }
     }
 
     @GetMapping

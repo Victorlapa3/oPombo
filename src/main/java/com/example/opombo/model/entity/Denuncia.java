@@ -18,7 +18,7 @@ public class Denuncia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @UuidGenerator //ele já está sendo usado na linha de cima, perguntar ao prof. vilmar
+    @UuidGenerator
     private String id;
 
     @ManyToOne
@@ -39,8 +39,8 @@ public class Denuncia {
     @CreationTimestamp
     private LocalDateTime criadoEm;
 
-    public static DenunciaDTO toDTO(String publicacaoId, int totalDenuncias, int denunciasPendentes, int denunciasAnalisadas) {
-        DenunciaDTO dto = new DenunciaDTO(publicacaoId, totalDenuncias, denunciasPendentes, denunciasAnalisadas);
+    public static DenunciaDTO toDTO(String publicacaoId, int totalDenuncias, int denunciasPendentes, int denunciasRecusadas, int denunciasAceitadas) {
+        DenunciaDTO dto = new DenunciaDTO(publicacaoId, totalDenuncias, denunciasPendentes, denunciasRecusadas, denunciasAceitadas);
         return dto;
     }
 }
