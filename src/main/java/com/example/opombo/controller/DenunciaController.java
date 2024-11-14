@@ -28,7 +28,15 @@ public class DenunciaController {
 
     @PostMapping
     public Denuncia criarDenuncia(@Valid @RequestBody Denuncia denuncia) throws PomboException {
-        return denunciaService.criar(denuncia);
+        Usuario subject = authService.getAuthenticatedUser();
+
+        if(subject.getPapel() == Papel.USUARIO) {
+            denuncia.getUsuario().setId(subject.getId());
+
+            return denunciaService.criar(denuncia);
+        } else {
+            throw new PomboException("Administradores não podem denunciar uma publicação.");
+        }
     }
 
     @PatchMapping("/admin/atualizar-status/{denunciaId}/{novaSituacaoString}")
@@ -55,24 +63,48 @@ public class DenunciaController {
     }
 
 
-    @PostMapping("/filtro")
-    public List<Denuncia> buscarDenunciasComFiltro(@RequestBody DenunciaSeletor seletor) {
-        return denunciaService.buscarComFiltro(seletor);
+    @PostMapping("/admin/filtro")
+    public List<Denuncia> buscarDenunciasComFiltro(@RequestBody DenunciaSeletor seletor) throws PomboException {
+        Usuario subject = authService.getAuthenticatedUser();
+
+        if(subject.getPapel() == Papel.ADMIN){
+            return denunciaService.buscarComFiltro(seletor);
+        } else{
+            throw new PomboException("Usuário não autorizado.");
+        }
     }
 
-    @GetMapping("/dto")
+    @GetMapping("/admin/dto")
     public DenunciaDTO gerarRelatorio(@RequestParam String adminId, @RequestParam String publicationId) throws PomboException {
-        return denunciaService.gerarRelatorio(adminId, publicationId);
+        Usuario subject = authService.getAuthenticatedUser();
+
+        if(subject.getPapel() == Papel.ADMIN){
+            return denunciaService.gerarRelatorio(adminId, publicationId);
+        } else{
+            throw new PomboException("Usuário não autorizado.");
+        }
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     public List<Denuncia> listarTodasDenuncias(@RequestParam String userId) throws PomboException {
-        return denunciaService.buscarTodas(userId);
+        Usuario subject = authService.getAuthenticatedUser();
+
+        if(subject.getPapel() == Papel.ADMIN){
+            return denunciaService.buscarTodas();
+        } else{
+            throw new PomboException("Usuário não autorizado.");
+        }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/admin/{id}")
     public Denuncia buscarDenunciaPorId(@PathVariable String id, @RequestParam String userId) throws PomboException {
-        return denunciaService.buscarPorId(id, userId);
+        Usuario subject = authService.getAuthenticatedUser();
+
+        if(subject.getPapel() == Papel.ADMIN){
+            return denunciaService.buscarPorId(id);
+        } else{
+            throw new PomboException("Usuário não autorizado.");
+        }
     }
 
     @DeleteMapping("/{id}")

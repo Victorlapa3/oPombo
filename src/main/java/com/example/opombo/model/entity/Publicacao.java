@@ -29,6 +29,9 @@ public class Publicacao {
     @Size(max = 350, message = "O conteúdo da Publicacao deve conter no máximo 300 caracteres.")
     private String conteudo;
 
+    @Column(columnDefinition = "LONGTEXT")
+    private String publicacaoImagem;
+
     @ManyToMany
     @JoinTable(
             name = "publicacao_like",

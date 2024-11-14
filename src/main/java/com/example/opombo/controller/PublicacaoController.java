@@ -13,7 +13,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -37,6 +39,17 @@ public class PublicacaoController {
 
         Publicacao criada = publicacaoService.criar(publicacao);
         return ResponseEntity.ok(criada);
+    }
+
+    @PostMapping("/upload-foto-publicacao")
+    public void fazerUploadFotoPublicacao(@RequestParam("imagem") MultipartFile imagem, @RequestParam("publicacaoId") String publicacaoId) throws PomboException, IOException {
+        Usuario usuario = authService.getAuthenticatedUser();
+
+        if(imagem == null) {
+            throw new PomboException("Arquivo inválido");
+        }
+
+        publicacaoService.salvarFotoPublicacao(imagem, publicacaoId, usuario.getId());
     }
 
     @PostMapping("/filtro")

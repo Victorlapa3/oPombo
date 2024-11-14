@@ -47,7 +47,7 @@ public class UsuarioServiceTest {
     }
 
     @Test
-    @DisplayName("Não deve ser possível cadastrar com um email já cadastrado")
+    @DisplayName("Não deve ser permitido o cadastro de um e-mail que já esteja registrado.")
     public void testCreate$EmailJaExistente() throws PomboException {
         Usuario usuarioNoBanco = UsuarioFactory.createUsuario();
         when(usuarioRepository.findByEmail(usuarioNoBanco.getEmail())).thenReturn(Optional.of(usuarioNoBanco));
@@ -57,5 +57,29 @@ public class UsuarioServiceTest {
 
         assertThatThrownBy(() -> usuarioService.criar(usuario)).isInstanceOf(PomboException.class)
                 .hasMessageContaining("Email ja cadastrado.");
+    }
+    @Test
+    @DisplayName("Não deve ser permitido o cadastro de um CPF que já esteja registrado.")
+    public void testCreate$CpfJaExistente() throws PomboException {
+        Usuario usuarioNoBanco = UsuarioFactory.createUsuario();
+        when(usuarioRepository.findByCpf(usuarioNoBanco.getCpf())).thenReturn(Optional.of(usuarioNoBanco));
+
+        Usuario usuario = UsuarioFactory.createUsuario();
+        usuario.setCpf(usuarioNoBanco.getCpf());
+
+        assertThatThrownBy(() -> usuarioService.criar(usuario)).isInstanceOf(PomboException.class)
+                .hasMessageContaining("CPF ja cadastrado.");
+    }
+    @Test
+    @DisplayName("Deve ser possível encontrar um usuario por id")
+    public void testFindById$success() throws PomboException {
+        Usuario novoUsuario = UsuarioFactory.createUsuario();
+        novoUsuario.setId("1");
+
+        when(usuarioRepository.findById(("1"))).thenReturn(Optional.of(novoUsuario));
+        Usuario resultado = usuarioService.buscarPorId(novoUsuario.getId());
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getId()).isEqualTo(novoUsuario.getId());
     }
 }

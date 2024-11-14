@@ -48,6 +48,9 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Papel papel = Papel.USUARIO; // Se o valor não for informado, o padrão é USUARIO
 
+    @Column(columnDefinition = "LONGTEXT")
+    private String fotoPerfil;
+
     @OneToMany(mappedBy = "usuario")
     @JsonBackReference(value = "usuario_publicacao")
     private List<Publicacao> publicacoes;

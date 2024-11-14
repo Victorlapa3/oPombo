@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,26 @@ public class PublicacaoService {
 
     @Autowired
     private RSAEncoder rsaEncoder;
+
+    @Autowired
+    private ImagemService imagemService;
+
+    public void salvarFotoPublicacao(MultipartFile imagem, String publicacaoId, String usuarioId) throws PomboException {
+
+        Publicacao publicacaoComNovaImagem = publicacaoRepository
+                .findById(publicacaoId)
+                .orElseThrow(() -> new PomboException("Publicação não encontrada"));
+
+        if(!publicacaoComNovaImagem.getUsuario().getId().equals(usuarioId)){
+            throw new PomboException("Você não pode alterar a imagem do Pruu de outro usuário.");
+        }
+
+        String imagemBase64 = imagemService.processarImagem(imagem);
+
+        publicacaoComNovaImagem.setPublicacaoImagem(imagemBase64);
+
+        publicacaoRepository.save(publicacaoComNovaImagem);
+    }
 
     public Publicacao criar(Publicacao publicacao) throws PomboException {
         if(publicacao.getConteudo().length() > 300) {

@@ -4,13 +4,13 @@ import com.example.opombo.exception.PomboException;
 import com.example.opombo.model.entity.Usuario;
 import com.example.opombo.model.repository.UsuarioRepository;
 import com.example.opombo.model.seletor.UsuarioSeletor;
-import org.hibernate.validator.internal.constraintvalidators.bv.NotNullValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +21,25 @@ public class UsuarioService implements UserDetailsService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private ImagemService imagemService;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario nao encotnrado: " + username));
+        return usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado: " + username));
+    }
+
+    public void salvarFotoPerfil(MultipartFile imagem, String usuarioId) throws PomboException {
+
+        Usuario usuarioComNovaImagem = usuarioRepository
+                .findById(usuarioId)
+                .orElseThrow(() -> new PomboException("Usuario não encontrado"));
+
+        String imagemBase64 = imagemService.processarImagem(imagem);
+
+        usuarioComNovaImagem.setFotoPerfil(imagemBase64);
+
+        usuarioRepository.save(usuarioComNovaImagem);
     }
 
     public Usuario criar(Usuario usuario) throws PomboException {

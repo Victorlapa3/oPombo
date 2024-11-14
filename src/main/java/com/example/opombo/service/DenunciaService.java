@@ -62,13 +62,11 @@ public class DenunciaService {
         denunciaRepository.save(denuncia);
     }
 
-    public List<Denuncia> buscarTodas(String usuarioId) throws PomboException {
-        verificarAdministrador(usuarioId);
+    public List<Denuncia> buscarTodas() throws PomboException {
         return denunciaRepository.findAll(Sort.by(Sort.Direction.DESC, "criadoEm"));
     }
 
-    public Denuncia buscarPorId(String denunciaId, String usuarioId) throws PomboException {
-        verificarAdministrador(usuarioId);
+    public Denuncia buscarPorId(String denunciaId) throws PomboException {
         return denunciaRepository.findById(denunciaId)
                 .orElseThrow(() -> new PomboException("Denúncia não encontrada."));
     }
@@ -88,15 +86,6 @@ public class DenunciaService {
     public boolean deletar(String id) {
         denunciaRepository.deleteById(id);
         return true;
-    }
-
-    public void verificarAdministrador(String usuarioId) throws PomboException {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new PomboException("Usuário não encontrado."));
-
-        if (usuario.getPapel() == Papel.USUARIO) {
-            throw new PomboException("Usuário não autorizado.");
-        }
     }
 
     public DenunciaDTO gerarRelatorio(String usuarioId, String publicacaoId) throws PomboException {
