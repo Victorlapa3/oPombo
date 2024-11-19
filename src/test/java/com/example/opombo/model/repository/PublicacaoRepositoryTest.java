@@ -31,7 +31,7 @@ public class PublicacaoRepositoryTest {
 
         Publicacao publicacao = PublicacaoFactory.createPublicacao(user);
         String conteudo = "a";
-        publicacao.setConteudo(conteudo.repeat(301));
+        publicacao.setConteudo(conteudo.repeat(351));
 
         assertThatThrownBy(() -> publicacaoRepository.saveAndFlush(publicacao)).isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("O conteúdo da Publicacao deve conter no máximo 300 caracteres.");

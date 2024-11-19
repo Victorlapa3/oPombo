@@ -82,4 +82,24 @@ public class UsuarioServiceTest {
         assertThat(resultado).isNotNull();
         assertThat(resultado.getId()).isEqualTo(novoUsuario.getId());
     }
+    @Test
+    @DisplayName("Deve ser possível atualizar um usuário")
+    public void testUpdate$success() throws PomboException {
+        Usuario novoUsuario = UsuarioFactory.createUsuario();
+        novoUsuario.setId("1");
+
+        when(usuarioRepository.findById(("1"))).thenReturn(Optional.of(novoUsuario));
+        when(usuarioRepository.save(novoUsuario)).thenReturn(novoUsuario);
+        Usuario salvadoNovoUsuario = usuarioService.criar(novoUsuario);
+
+        assertThat(salvadoNovoUsuario.getId()).isEqualTo(novoUsuario.getId());
+        assertThat(salvadoNovoUsuario.getNome()).isEqualTo(novoUsuario.getNome());
+
+        novoUsuario.setNome("nome atualizado");
+
+        Usuario resultado = usuarioService.atualizar(novoUsuario);
+
+        assertThat(resultado.getNome()).isEqualTo("nome atualizado");
+
+    }
 }
