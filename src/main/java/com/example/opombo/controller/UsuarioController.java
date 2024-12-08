@@ -47,6 +47,11 @@ public class UsuarioController {
         return ResponseEntity.ok(atualizado);
     }
 
+    @GetMapping("/authenticated")
+    public Usuario getAuthenticatedUser() throws PomboException {
+        return authService.getAuthenticatedUser();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable String id) {
         Usuario usuario = usuarioService.buscarPorId(id);

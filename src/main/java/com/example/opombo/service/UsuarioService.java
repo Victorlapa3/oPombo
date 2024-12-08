@@ -55,6 +55,10 @@ public class UsuarioService implements UserDetailsService {
 
         Usuario usuarioNoBanco = usuarioRepository.findById(usuario.getId()).orElseThrow(() -> new PomboException("Usuario nao encontrado"));
 
+        usuario.setFotoPerfil(usuarioNoBanco.getFotoPerfil());
+        usuario.setCpf(usuarioNoBanco.getCpf());
+        usuario.setEmail(usuarioNoBanco.getEmail());
+        usuario.setSenha(usuarioNoBanco.getSenha());
         usuario.setPapel(usuarioNoBanco.getPapel());
         usuario.setCriadoEm(usuarioNoBanco.getCriadoEm());
 

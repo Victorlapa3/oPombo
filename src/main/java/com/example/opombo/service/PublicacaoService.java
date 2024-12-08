@@ -30,11 +30,6 @@ public class PublicacaoService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private DenunciaRepository denunciaRepository;
-
-    @Autowired
-    private RSAEncoder rsaEncoder;
 
     @Autowired
     private ImagemService imagemService;
@@ -61,22 +56,17 @@ public class PublicacaoService {
             throw new PomboException("O conteúdo da Publicacao deve conter no máximo 300 caracteres.");
         }
 
-        publicacao.setConteudo(rsaEncoder.encode(publicacao.getConteudo()));
-
         return publicacaoRepository.save(publicacao);
     }
 
     public Publicacao buscarPorId(String id) throws PomboException {
         Publicacao publicacao = publicacaoRepository.findById(id).orElseThrow(() -> new PomboException("Publicação não encontrada."));
 
-        publicacao.setConteudo(rsaEncoder.decode(publicacao.getConteudo()));
-
-
         return publicacao;
     }
 
     // Se a publicação já estiver curtida, o métodoo a descurtirá
-    public void curtir(String usuarioId, String publicacaoId) throws PomboException {
+    public boolean curtir(String usuarioId, String publicacaoId) throws PomboException {
         Publicacao publicacao = publicacaoRepository.findById(publicacaoId)
                 .orElseThrow(() -> new PomboException("Publicação não encontrada."));
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -84,14 +74,20 @@ public class PublicacaoService {
 
         List<Usuario> curtidas = publicacao.getCurtidas();
 
+        boolean response;
+
         if (curtidas.contains(usuario)) {
             curtidas.remove(usuario);
+            response = false;
         } else {
             curtidas.add(usuario);
+            response = true;
         }
 
         publicacao.setCurtidas(curtidas);
         publicacaoRepository.save(publicacao);
+
+        return response;
     }
 
     public List<Usuario> buscarCurtidasPublicacao(String publicacaoId) throws PomboException {

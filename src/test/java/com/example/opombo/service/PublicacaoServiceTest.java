@@ -33,9 +33,6 @@ public class PublicacaoServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
-    @Mock
-    private RSAEncoder rsaEncoder;
-
     @InjectMocks
     private PublicacaoService publicacaoService;
 
@@ -58,17 +55,15 @@ public class PublicacaoServiceTest {
         Publicacao publicacao = PublicacaoFactory.createPublicacao(usuario);
 
         String conteudoOriginal = "Exemplo exemplo exemplo";
-        String conteudoCriptografado = "conteudoCriptografado";
 
         publicacao.setConteudo(conteudoOriginal);
 
-        when(rsaEncoder.encode(conteudoOriginal)).thenReturn(conteudoCriptografado);
         when(publicacaoRepository.save(publicacao)).thenReturn(publicacao);
 
         Publicacao resultado = publicacaoService.criar(publicacao);
 
         assertThat(resultado).isNotNull();
-        assertThat(resultado.getConteudo()).isEqualTo(conteudoCriptografado);
+        assertThat(resultado.getConteudo()).isEqualTo(conteudoOriginal);
     }
     @Test
     @DisplayName("Não deve ser possível deletar publicação de outro usuário")

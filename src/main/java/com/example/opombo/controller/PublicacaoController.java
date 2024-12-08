@@ -59,12 +59,11 @@ public class PublicacaoController {
     }
 
     @PostMapping("/curtir/{publicacaoId}")
-    public ResponseEntity<Void> curtir(@PathVariable String publicacaoId) throws PomboException {
+    public boolean curtir(@PathVariable String publicacaoId) throws PomboException {
         Usuario subject = authService.getAuthenticatedUser();
 
         if(subject.getPapel() == Papel.USUARIO) {
-            publicacaoService.curtir(subject.getId(), publicacaoId);
-            return ResponseEntity.ok().build();
+            return publicacaoService.curtir(subject.getId(), publicacaoId);
         } else {
             throw new PomboException("Administradores não podem curtir publicações.");
         }
@@ -91,5 +90,14 @@ public class PublicacaoController {
     public List<PublicacaoDTO> gerarRelatorio() throws PomboException {
         List <PublicacaoDTO> publicacoesDTOS = publicacaoService.buscarDTO();
         return publicacoesDTOS;
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) throws PomboException {
+        Usuario subject = authService.getAuthenticatedUser();
+
+        publicacaoService.deletar(id, subject.getId());
+
+        return ResponseEntity.ok().build();
     }
 }
